@@ -9,7 +9,7 @@ const navItems = [
         href: '/'
     },
    { label: "Companions",
-    href: "/compaions"
+    href: "/companions"
     },
     {
         label: "My journey",
