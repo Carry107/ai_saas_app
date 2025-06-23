@@ -24,7 +24,8 @@ import { subjects } from "@/constants";
 import { Textarea } from "./ui/textarea";
 import { createCompanion } from "@/lib/actions/companion.action";
 import { redirect, useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { boolean } from 'zod/v4-mini';
 
 // ✅ 1. Fix schema with coercion
 const formSchema = z.object({
@@ -38,8 +39,8 @@ const formSchema = z.object({
 
 const CompanionForm = () => {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
+  const [isPending, setIsPending] = useTransition();
+ const [isCreating, setIsCreating] = useState(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,18 +53,17 @@ const CompanionForm = () => {
     },
   });
 
-  const onSubmit = async(values: z.infer<typeof formSchema>) => {
+  const onSubmit =  async(values: z.infer<typeof formSchema>) => {
    const companion = await createCompanion(values)
    if(companion){
-   
-    startTransition(()=> {
-      redirect(`/companions/${companion.id}`)
-    
-    })
-    
+      setIsCreating(true)
+      setIsPending(()=>{
+        redirect(`/companions/${companion.id}`)
+      })
    }else{
     console.log("Compaanion creation failed 🤔")
     redirect('/')
+    setIsCreating(false)
    }
   };
 
@@ -202,15 +202,15 @@ const CompanionForm = () => {
           {/* Submit */}
           <Button
   type="submit"
-  className={`w-full flex justify-center items-center ${isPending ? "opacity-70 cursor-wait" : ""}`}
-  disabled={isPending}
+  className={`w-full flex justify-center items-center ${isPending || isCreating ? "opacity-70 cursor-wait" : ""}`}
+  disabled={isPending || isCreating}
 >
   {isPending ? (
     <Circle className="animate-spin mr-2" size={20} /> // Adding spinner
   ) : (
     "Build Your Companion"
   )}
-  {isPending && "Creating..."}
+  {isPending || isCreating ? "Creating...": ""}
 </Button>
         </form>
       </Form>

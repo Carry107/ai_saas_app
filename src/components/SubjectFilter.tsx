@@ -43,7 +43,7 @@ const SubjectFilter = () => {
       }
 
       router.push(`${pathname}?${params.toString()}`);
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [subject]);

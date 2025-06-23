@@ -45,7 +45,7 @@ const SearchInput = () => {
         const timer = setTimeout(() => {
             setDebouncedQuery(searchQuery);
             setIsLoading(true); // Start loading indicator
-        }, 500); // 500ms delay for debouncing
+        }, 300); // 500ms delay for debouncing
 
         return () => clearTimeout(timer); // Cleanup previous timeout on change
     }, [searchQuery]);

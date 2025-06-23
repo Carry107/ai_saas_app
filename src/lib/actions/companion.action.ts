@@ -1,8 +1,6 @@
 "use server"
 import { auth } from "@clerk/nextjs/server"
 import { createSupabaseClient } from "../supabase";
-import { createClient } from "@supabase/supabase-js";
-import { error } from "console";
 export const createCompanion = async (formData: CreateCompanion) =>{
     const {userId: author} = await auth();
     const supabase = createSupabaseClient();
@@ -11,8 +9,10 @@ export const createCompanion = async (formData: CreateCompanion) =>{
     .insert({...formData, author})
     .select()
     if(error || !data) throw new Error(error?.message || "Failed to create a companion")
+        return data[0]
+    
 
-      return data[0]
+      
 }
 
 export const getAllCompanions = async ({
@@ -50,13 +50,19 @@ export const getAllCompanions = async ({
   return companions; // Return companions data
 };
 
-export const getCompanion = async(id: string) =>{
-  const supabase = createSupabaseClient()
-  const {data, error} =  await supabase
-  .from('companion')
-  .select()
-  .eq('id', id);
+export const getCompanion = async (id: string) => {
+  const supabase = createSupabaseClient();
 
-  if(error) return console.log(error);
-    return data[0];
-}
+  const { data, error } = await supabase
+    .from("companions") // ✅ correct table name
+    .select("*")
+    .eq("id", id)
+    .single(); // ✅ returns one object directly
+
+  if (error) {
+    console.error("Error fetching companion:", error.message);
+    return null;
+  }
+
+  return data;
+};
